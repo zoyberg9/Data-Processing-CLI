@@ -1,0 +1,20 @@
+{
+  "name": "data-processing-cli",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/zoyberg9/Data-Processing-CLI#readme",
+  "bugs": {
+    "url": "https://github.com/zoyberg9/Data-Processing-CLI/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zoyberg9/Data-Processing-CLI.git"
+  },
+  "license": "ISC",
+  "author": "zoyberg",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
