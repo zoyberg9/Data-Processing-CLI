@@ -1,46 +1,23 @@
-import * as readline from 'node:readline/promises';
-import os from 'node:os'
-import { up } from './navigation.js'
+import { up, cd, ls } from './navigation.js';
+import run from './commands/csvToJson.js';
 
-export const interactive = (context) => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
-
-  rl.setPrompt('>')
-  rl.prompt()
-
-  const commandRouter = {
+const commandRouter = {
     up,
-    cd: () => {},
-    ls: () => {}
+    cd,
+    ls,
+    'csv-to-json': run
   }
 
-  rl.on('line', (input) => {
-    if (input === '.exit') {
-      rl.close();
-      return;
-    }
-    const parts = input.trim().split(' ')
-    const commandName = parts[0]
-    const args = parts.slice(1)
+export const dispatchCommand = async (cmd, state) => {
+  const parts = cmd.trim().split(/\s+/)
+  const cmdName = parts[0]
+  const args = parts.slice(1)
+  const handler = commandRouter[cmdName]
+  
+  if (!handler) {
+    return { error: 'Invalid input' }
+  }
 
-    const handler = commandRouter[commandName]
-
-    if (handler) {
-        handler(args, context)
-    } else {
-        console.log('Invalid input')
-    }
-
-    rl.prompt()
-  })
-
-  rl.on("close", () => {
-    console.log("\nThank you for using Data Processing CLI!");
-    process.exit();
-  })
-}
-
+  return await handler(args, state);
+};
 
