@@ -1,11 +1,13 @@
 import { up, cd, ls } from './navigation.js';
-import run from './commands/csvToJson.js';
+import runCsvToJson from './commands/csvToJson.js';
+import runJsonToCsv from './commands/jsonToCsv.js';
 
 const commandRouter = {
     up,
     cd,
     ls,
-    'csv-to-json': run
+    'csv-to-json': runCsvToJson,
+    'json-to-csv': runJsonToCsv
   }
 
 export const dispatchCommand = async (cmd, state) => {
