@@ -3,37 +3,48 @@ import path from 'node:path'
 import { pipeline } from 'stream/promises';
 import { Transform } from 'node:stream';
 
+const esc = v => /[",\n\r]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
+
 class JsonToCsv extends Transform {
     constructor () {
         super()
         this.buffer = '';
-        this.header = null;
+        this.headerKeys = null;
+        this.isFirstRow = true; 
     };
 
     _transform(chunk, _, cb) {
         this.buffer += chunk.toString();
+        const lines = this.buffer.split('\n');
+        this.buffer = lines.pop();
         
-        
-        if (this.buffer.includes(']')) {
-            const objects = JSON.parse(this.buffer);
-            for (let i = 0; i < objects.length; i++) {
-                const obj = objects[i];
 
-                if (!this.headers) {
-                    this.headers = Object.keys(obj).join(', ') + '\n';
-                    this.push(this.headers);
-                } 
+        for (const line of lines) {
+            if (!line.trim())
+                continue;
 
-                const isLast = (i === objects.length - 1);
-                const values = Object.values(obj).join(', ') + (isLast ? '' : '\n');
-                
-                this.push(values);
+            const obj = JSON.parse(line);
+            
+            if (!this.headerKeys) {
+                this.headerKeys = Object.keys(obj);
+                this.push(this.headerKeys.join(','));
+                this.isFirstRow = false;
             }
+            const row = this.headerKeys.map(h => esc(obj[h])).join(',');
+            this.push('\n' + row);
         }
         cb();
-            
     }
-}
+
+    _flush(cb) {
+        if (this.buffer.trim()) {
+            const obj = JSON.parse(this.buffer);
+            const row = this.headerKeys.map(h => esc(obj[h])).join(',');
+            this.push('\n' + row);
+        }
+        cb();
+    };
+};
 
 export default async function runJsonToCsv(args, context) {
     try {
@@ -53,10 +64,10 @@ export default async function runJsonToCsv(args, context) {
         
         const output = path.isAbsolute(outputArg)
             ? outputArg
-            : path.join(import.meta.dirname, outputArg);
+            : path.join(context.cwd, outputArg);
 
         await pipeline(
-            fs.createReadStream(input, { highWaterMark: 2 }),
+            fs.createReadStream(input),
             new JsonToCsv(),
             fs.createWriteStream(output)
         );

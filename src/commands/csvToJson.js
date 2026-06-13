@@ -17,11 +17,11 @@ class CsvToJson extends Transform {
 
         for (const line of lines) {
             if (!line.trim())
-                continue
+                continue;
 
             if (!this.headers) {
-                this.headers = line.split(',')
-                continue
+                this.headers = line.split(',');
+                continue;
             }
 
             const values = line.split(',')
@@ -51,33 +51,19 @@ class CsvToJson extends Transform {
     }
 }
 
-class JsonArrayStringify extends Transform {
+class ToJsonLines extends Transform {
     constructor() {
-    super({ writableObjectMode: true })
-    this.first = true
+        super({ writableObjectMode: true }) 
     }
 
     _transform(obj, _, cb) {
-    if (this.first) {
-        this.push('[' + JSON.stringify(obj))
-        this.first = false
-    } else {
-        this.push(',' + JSON.stringify(obj))
-        
-    }
-
-    cb()
-    }
-
-    _flush(cb) {
-        if (this.first) {
-        this.push('[]') // no data case
-        } else {
-        this.push(']')
-        }
+        this.push(JSON.stringify(obj) + '\n')
         cb()
     }
 
+    _flush(cb) {
+        cb()
+    }
 }
 
 export default async function runCsvToJson (args, context) {
@@ -98,12 +84,12 @@ export default async function runCsvToJson (args, context) {
 
         const output = path.isAbsolute(outputArg)
             ? outputArg
-            : path.join(import.meta.dirname, outputArg);
+            : path.join(context.cwd, outputArg);
 
         await pipeline(
-            fs.createReadStream(input, { highWaterMark: 10 }),
+            fs.createReadStream(input),
             new CsvToJson(),
-            new JsonArrayStringify(),
+            new ToJsonLines(),
             fs.createWriteStream(output)
         );
 

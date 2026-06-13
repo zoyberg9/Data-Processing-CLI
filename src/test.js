@@ -1,10 +1,12 @@
-const lol = [{"name":"Alice","age":"30","city":"New York"},{"name":"Bob","age":"25","city":"London"}]
-console.log(lol[0].name)
-let value = ''
-value += "grish" + ", "
-value += "30" + ", "
-value += "BY" + "\n"
-value += "grish" + ", "
-value += "30" + ", "
-value += "BY" + "\n"
-console.log(value)
+const users = ['Alice', 'Bob', 'Charlie'];
+
+// Format each name into a URL string
+const profileUrls = users.map(name => `https://api.com/${name.toLowerCase()}`);
+
+console.log(profileUrls);
+// Output: 
+// [
+//   'https://api.com',
+//   'https://api.com',
+//   'https://api.com'
+// ]
