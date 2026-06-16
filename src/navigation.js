@@ -1,5 +1,6 @@
 import path from 'node:path'
 import fs from 'fs/promises';
+import pathResolver from './utils/pathResolver.js'
 
 export const up = (_args, context) => {
   const current = context.cwd
@@ -11,12 +12,8 @@ export const up = (_args, context) => {
 
 export const cd = async (args, context) => {
   try {
-    const target = args[0]
-    if (!target) throw new Error()
-
-    const newPath = path.isAbsolute(target)
-      ? target
-      : path.join(context.cwd, target)
+    const target = args.rawArgs
+    const newPath = pathResolver(target, context)
 
     const stats = await fs.stat(newPath)
     if (!stats.isDirectory()) throw new Error()

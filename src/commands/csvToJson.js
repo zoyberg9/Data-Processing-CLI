@@ -68,29 +68,12 @@ class ToJsonLines extends Transform {
 
 export default async function runCsvToJson (args, context) {
     try {
-        const inputIndex = args.indexOf('--input');
-        const outputIndex = args.indexOf('--output');
-
-        const inputArg = inputIndex !== -1 ? args[inputIndex + 1] : null;
-        const outputArg = outputIndex !== -1 ? args[outputIndex + 1] : null;
-
-        if (!inputArg || !outputArg) {
-            return { error: 'Missing path arguments' };
-        }
-
-        const input = path.isAbsolute(inputArg)
-            ? inputArg
-            : path.join(context.cwd, inputArg);
-
-        const output = path.isAbsolute(outputArg)
-            ? outputArg
-            : path.join(context.cwd, outputArg);
 
         await pipeline(
-            fs.createReadStream(input),
+            fs.createReadStream(args.input),
             new CsvToJson(),
             new ToJsonLines(),
-            fs.createWriteStream(output)
+            fs.createWriteStream(args.output)
         );
 
         return { data: 'Conversion completed'}

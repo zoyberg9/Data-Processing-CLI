@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path'
 import { pipeline } from 'stream/promises';
 import { Transform } from 'node:stream';
+import { argParser } from '../utils/argParser.js'
+import pathResolver from '../utils/pathResolver.js'
 
 const esc = v => /[",\n\r]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
 
@@ -47,25 +49,15 @@ class JsonToCsv extends Transform {
 };
 
 export default async function runJsonToCsv(args, context) {
+    
     try {
-        const inputIndex = args.indexOf('--input');
-        const outputIndex = args.indexOf('--output');
-
-        const inputArg = inputIndex !== -1 ? args[inputIndex + 1] : null;
-        const outputArg = outputIndex !== -1 ? args[outputIndex + 1] : null;
-
-        if (!inputArg || !outputArg) {
-            return { error: 'Missing path arguments' };
-        }
-
-        const input = path.isAbsolute(inputArg)
-            ? inputArg
-            : path.join(context.cwd, inputArg);
+        const input = args.flags.input
+        ? pathResolver(args.flags.input, context)
+        : null;
+        const output = args.flags.output
+        ? pathResolver(args.flags.output, context)
+        : null;
         
-        const output = path.isAbsolute(outputArg)
-            ? outputArg
-            : path.join(context.cwd, outputArg);
-
         await pipeline(
             fs.createReadStream(input),
             new JsonToCsv(),

@@ -1,10 +1,29 @@
 import path from 'node:path'
+import pathResolver from './pathResolver.js'
 
-export const argParser = async (cmd, state) => {
+export const argParser = (cmd, state) => {
   const parts = cmd.trim().split(/\s+/);
-  const cmdName = parts[0];
+  const command = parts[0];
   const args = parts.slice(1);
-  if (args[0] === 'input') {
-    const inputPath = path.relative(args[1])
+  
+  const flags = {}
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i].startsWith('--')) {
+      const key = args[i].replace('--', '');
+      const value = args[i + 1] && !args[i + 1].startsWith('--')
+        ? args[i + 1]
+        : true;
+
+      flags[key] = value;
+
+      if (value !== true) i++;
+    }
   }
+
+  return {
+    command,
+    flags,
+    rawArgs: args.toString()
+  };   
 }
