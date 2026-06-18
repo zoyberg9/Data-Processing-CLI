@@ -1,7 +1,7 @@
 import fs from 'node:fs';
-import path from 'node:path'
 import { pipeline } from 'stream/promises';
 import { Transform } from 'node:stream';
+import pathResolver from '../utils/pathResolver.js'
 
 class CsvToJson extends Transform {
     constructor() {
@@ -68,17 +68,22 @@ class ToJsonLines extends Transform {
 
 export default async function runCsvToJson (args, context) {
     try {
-
+        const input = args.flags.input
+            ? pathResolver(args.flags.input, context)
+            : null;
+        const output = args.flags.output
+            ? pathResolver(args.flags.output, context)
+            : null;
         await pipeline(
-            fs.createReadStream(args.input),
+            fs.createReadStream(input),
             new CsvToJson(),
             new ToJsonLines(),
-            fs.createWriteStream(args.output)
+            fs.createWriteStream(output)
         );
 
         return { data: 'Conversion completed'}
         
     } catch (error) {
-        console.error('❌ Pipeline failed:', error.message);
+        throw new Error(`Pipeline failed: ${error.message}`);
     }
 }

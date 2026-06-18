@@ -1,39 +1,52 @@
 import fs from 'node:fs';
-import path from 'node:path';
+import { Writable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import pathResolver from '../utils/pathResolver.js';
 
-export default async function counter (args, context) {
+export const counter = async (args, context) => {
     let lines = 0;
     let words = 0;
     let chars = 0;
-    let inWord = false
+    let inWord = false;
 
     try {
-        const readStream = fs.createReadStream(args.input, { encoding: 'utf8' })
+        const input = args.flags.input
+            ? pathResolver(args.flags.input, context)
+            : null;
 
-        for await (const chunk of readStream) {
-            const charsus = chunk.toString()
+        const readStream = fs.createReadStream(input, { encoding: 'utf8' });
 
-            for (const char of charsus) {
-                
-                if (char === '\n'){
-                    lines++;
+        const counterStream = new Writable({
+            defaultEncoding: 'utf8', 
+            decodeStrings: false, 
+
+            write(chunk, encoding, callback) {
+                for (const char of chunk) {
+                    if (char === '\n') {
+                        lines++;
+                    }
+
+                    const isWordChar = /[a-zA-Z0-9]/.test(char);
+
+                    if (isWordChar && !inWord) {
+                        words++;
+                        inWord = true;
+                    } else if (!isWordChar) {
+                        inWord = false;
+                    }
                 }
-
-                const isWordChar = /[a-zA-Z0-9]/.test(char)
-
-                if (isWordChar && !inWord) {
-                    words++;
-                    inWord = true;
-                } else if (!isWordChar) {
-                    inWord = false;
-                }
+                chars += chunk.length;
+                callback();
             }
-            chars += charsus.length
-        }
+        });
+
+        await pipeline(readStream, counterStream);
+
         return {
             data: `Lines: ${lines}\nWords: ${words}\nCharacters: ${chars}`
         };
-    } catch(error) {
-        console.error('❌ Pipeline failed:', error.message);
-    };
-}
+
+    } catch (error) {
+        throw new Error(`Pipeline failed: ${error.message}`);
+    }
+};

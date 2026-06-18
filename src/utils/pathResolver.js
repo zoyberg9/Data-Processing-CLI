@@ -1,5 +1,3 @@
-// pathResolver.js
-
 import path from 'node:path';
 
 export default function pathResolver(p, context) {

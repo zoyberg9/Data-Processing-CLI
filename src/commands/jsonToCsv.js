@@ -1,8 +1,6 @@
 import fs from 'node:fs';
-import path from 'node:path'
 import { pipeline } from 'stream/promises';
 import { Transform } from 'node:stream';
-import { argParser } from '../utils/argParser.js'
 import pathResolver from '../utils/pathResolver.js'
 
 const esc = v => /[",\n\r]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
@@ -67,6 +65,6 @@ export default async function runJsonToCsv(args, context) {
         return { data: 'Conversion completed' };
         
     } catch (error) {
-        console.error('❌ Pipeline failed:', error.message);
+        throw new Error(`Pipeline failed: ${error.message}`);
     }
 }

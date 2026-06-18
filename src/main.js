@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { dispatchCommand } from './repl.js'
 
-const context = { cwd: os.homedir() }
+const context = { cwd: '/home/dimazdr/projects/Data-Processing-CLI/src/commands' }
 
 const interactive = () => {
   const rl = readline.createInterface({
@@ -20,16 +20,18 @@ const interactive = () => {
     if (input.trim() === '.exit') {
       rl.close()
     } else {
-      const result = await dispatchCommand(input, context);
+      try {
+        const result = await dispatchCommand(input, context);
 
-      if (result?.error) {
-        console.log(result.error)
-      } else if (result?.data) {
-        if (Array.isArray(result.data)) {
-          result.data.forEach(line => console.log(line))
-        } else {
-          console.log(result.data)
+        if (result?.data) {
+          if (Array.isArray(result.data)) {
+            result.data.forEach(line => console.log(line))
+          } else {
+            console.log(result.data)
+          }
         }
+      } catch (error) {
+        console.log(`❌ Error: ${error.message}`);
       }
     }
     rl.prompt()

@@ -11,7 +11,6 @@ export const up = (_args, context) => {
 }
 
 export const cd = async (args, context) => {
-  try {
     const target = args.rawArgs
     const newPath = pathResolver(target, context)
 
@@ -20,14 +19,9 @@ export const cd = async (args, context) => {
 
     context.cwd = path.resolve(newPath)
     return { data: context.cwd }
-
-  } catch {
-    return { error: 'Operation failed' }
-  }
 }
 
 export const ls = async (_args, context) => {
-  try {
     const entries = await fs.readdir(context.cwd, { withFileTypes: true })
 
     const folders = []
@@ -46,11 +40,6 @@ export const ls = async (_args, context) => {
       data: [
         ...folders.map(f => `${f}    [folder]`),
         ...files.map(f => `${f}    [file]`)
-      ],
-      
+      ], 
     }
-
-  } catch {
-    return { error: 'Operation failed' }
-  }
 }
