@@ -10,8 +10,7 @@ export const argParser = (cmd, state) => {
   for (let i = 0; i < args.length; i++) {
     const currentArg = args[i];
     if (currentArg.startsWith('-') && !currentArg.startsWith('--')) {
-        const flagName = currentArg.replace('-', ''); 
-        throw new Error(`--${flagName} flag required`);
+        throw new Error(`--${currentArg} flag required`);
       }
 
     if (args[i].startsWith('--')) {

@@ -4,7 +4,9 @@ import runJsonToCsv from './commands/jsonToCsv.js';
 import { counter } from './commands/count.js';
 import { argParser } from './utils/argParser.js'
 import { hasher } from './commands/hash.js'
-import { hashComparer } from './commands/hash-compare.js'
+import { hashComparer } from './commands/hashCompare.js'
+import { encrypter } from './commands/encrypt.js'
+import { decrypter } from './commands/decrypt.js'
 
 const commandRouter = {
     up,
@@ -14,7 +16,9 @@ const commandRouter = {
     'json-to-csv': runJsonToCsv,
     'count': counter,
     'hash': hasher,
-    'hash-compare': hashComparer
+    'hash-compare': hashComparer,
+    'encrypt': encrypter,
+    'decrypt': decrypter
   }
 
 export const dispatchCommand = async (cmd, state) => {

@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 import pathResolver from '../utils/pathResolver.js';
 import { requireInput, requireOutput, validateAlgorithm } from '../utils/validators/flags.js'
-import { requireExistingFile, requireWritableDir} from '../utils/validators/file.js'
+import { requireExistingFile } from '../utils/validators/file.js'
 
 const buildHashInput = (args, context) => {
     const flags = args.flags;

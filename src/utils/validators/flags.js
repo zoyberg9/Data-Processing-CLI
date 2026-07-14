@@ -15,6 +15,11 @@ export const requireHash = (hash) => {
     return hash;
 }
 
+export const requirePassword = (password) => {
+    if (!password) throw new Error('--hash flag required');
+    return password;
+}
+
 export const validateAlgorithm = (algorithm) => {
     
     algorithm = algorithm ?? 'sha256';

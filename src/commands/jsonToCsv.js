@@ -10,11 +10,10 @@ class JsonToCsv extends Transform {
         super()
         this.buffer = '';
         this.headerKeys = null;
-        this.isFirstRow = true; 
     };
 
     _transform(chunk, _, cb) {
-        this.buffer += chunk.toString();
+        this.buffer += chunk;
         const lines = this.buffer.split('\n');
         this.buffer = lines.pop();
         
@@ -28,7 +27,6 @@ class JsonToCsv extends Transform {
             if (!this.headerKeys) {
                 this.headerKeys = Object.keys(obj);
                 this.push(this.headerKeys.join(','));
-                this.isFirstRow = false;
             }
             const row = this.headerKeys.map(h => esc(obj[h])).join(',');
             this.push('\n' + row);
@@ -57,7 +55,7 @@ export default async function runJsonToCsv(args, context) {
         : null;
         
         await pipeline(
-            fs.createReadStream(input),
+            fs.createReadStream(input, { encoding: 'utf-8' }),
             new JsonToCsv(),
             fs.createWriteStream(output)
         );

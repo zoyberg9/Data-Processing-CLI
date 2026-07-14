@@ -20,7 +20,7 @@ export const counter = async (args, context) => {
             defaultEncoding: 'utf8', 
             decodeStrings: false, 
 
-            write(chunk, encoding, callback) {
+            write(chunk, _, cb) {
                 for (const char of chunk) {
                     if (char === '\n') {
                         lines++;
@@ -36,7 +36,7 @@ export const counter = async (args, context) => {
                     }
                 }
                 chars += chunk.length;
-                callback();
+                cb();
             }
         });
 

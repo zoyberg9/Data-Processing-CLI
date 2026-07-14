@@ -8,12 +8,12 @@ const context = { cwd: '/home/dimazdr/projects/Data-Processing-CLI/src/commands'
 const interactive = () => {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+     prompt: '> ',
   })
 
   console.log('Welcome to Data Processing CLI!');
   console.log(`You are currently in ${context.cwd} `)
-  rl.setPrompt('>');
   rl.prompt();
 
   rl.on('line', async (input) => {
